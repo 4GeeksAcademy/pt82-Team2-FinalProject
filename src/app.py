@@ -18,6 +18,7 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 CORS(app, origins=[
     "https://friendly-computing-machine-pxw4p4r46rq2r7gp-3000.app.github.dev",
+    "https://jubilant-telegram-9759j7q57vg92pgg4-3000.app.github.dev",
     "http://localhost:3000",
     "http://localhost:3001"
 ], supports_credentials=True)

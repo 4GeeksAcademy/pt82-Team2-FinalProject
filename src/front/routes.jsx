@@ -35,6 +35,7 @@ export const router = createBrowserRouter(
       <Route path="demo" element={<Demo />} />
       <Route path="createevent" element={<CreateEvent />} />
       <Route path="profile" element={<Profile />} />
+      <Route path="favorites" element={<Favorites />} />
     </Route>
   )
 );
