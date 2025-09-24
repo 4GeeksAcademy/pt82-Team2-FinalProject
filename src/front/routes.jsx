@@ -19,6 +19,7 @@ import Discover from './pages/Discover.jsx';
 import RSVP from './pages/RSVP.jsx';
 import Fav from './pages/Fav.jsx';
 import EventDetails from './pages/EventDetails.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -45,6 +46,7 @@ export const router = createBrowserRouter(
   <Route path="rsvp" element={<RSVP />} />
   <Route path="fav" element={<Fav />} />
   <Route path="event/:eventId" element={<EventDetails />} />
+      <Route path="resetpassword" element={<ResetPassword />} />
     </Route>
   )
 );

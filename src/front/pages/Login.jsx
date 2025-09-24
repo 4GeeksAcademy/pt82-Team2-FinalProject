@@ -12,23 +12,39 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    try {
-      const response = await fetch('https://upgraded-system-7vgj4vjj6j52rx7j-3001.app.github.dev/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok && data.access_token) {
-        localStorage.setItem('access_token', data.access_token);
-        navigate('/dashboard');
-      } else {
-        setError(data.msg || 'Failed to login');
+
+    const endpoints = [
+      'https://friendly-computing-machine-pxw4p4r46rq2r7gp-3001.app.github.dev/api/login',
+      'https://upgraded-system-7vgj4vjj6j52rx7j-3001.app.github.dev/api/login',
+      'https://jubilant-telegram-9759j7q57vg92pgg4-3001.app.github.dev/api/login',
+    ];
+
+    let data;
+    let response;
+
+    for (const endpoint of endpoints) {
+      try {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        data = await response.json();
+
+        if (response.ok && data.access_token) {
+          localStorage.setItem('access_token', data.access_token);
+          navigate('/dashboard');
+          return; // stop after first successful login
+        }
+      } catch (err) {
+        // optionally log error and continue to the next endpoint
+        console.error('Error logging in at', endpoint, err);
       }
-    } catch (error) {
-      setError(error.message || 'Failed to login');
-      console.error('Failed to login:', error);
     }
+    
+    // If all endpoints failed
+    setError(data?.msg || 'Failed to login on all endpoints');
   };
 
   return (
@@ -42,6 +58,7 @@ function Login() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             className="login-input"
+            required
           />
           <input
             type="password"
@@ -49,6 +66,7 @@ function Login() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             className="login-input"
+            required
           />
           {error && <div className="login-error">{error}</div>}
           <button type="submit" className="login-button">Submit</button>
