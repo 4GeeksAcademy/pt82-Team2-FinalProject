@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Landing.css";
 import "./LoginSignup.css";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -24,22 +25,21 @@ function Login() {
 
     for (const endpoint of endpoints) {
       try {
-        response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
 
-        data = await response.json();
+        const data = await response.json();
 
         if (response.ok && data.access_token) {
-          localStorage.setItem('access_token', data.access_token);
-          navigate('/dashboard');
-          return; // stop after first successful login
-        }
-      } catch (err) {
-        // optionally log error and continue to the next endpoint
-        console.error('Error logging in at', endpoint, err);
+          localStorage.setItem("token", data.access_token);
+          dispatch({ type: "LOGIN", payload: { email } });
+          navigate("/dashboard");
+          return;
+        } else {
+          setError(data?.msg || "Failed to login at this endpoint.");
       }
     }
     
@@ -56,7 +56,7 @@ function Login() {
             type="email"
             placeholder="Email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             className="login-input"
             required
           />
@@ -64,7 +64,7 @@ function Login() {
             type="password"
             placeholder="Password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             className="login-input"
             required
           />

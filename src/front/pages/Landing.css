@@ -52,12 +52,10 @@ body,
 /* Navbar */
 .navbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 2rem;
   background: #23234a;
+  padding: 1.2rem 2rem;
   color: #fff;
-  position: relative;
 }
 
 .logo {
@@ -81,8 +79,10 @@ body,
 
 .nav-links {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  justify-content: center; 
+  align-items: center;  
+  gap: 2rem; 
+  flex-grow: 1; 
 }
 
 .nav-links a {

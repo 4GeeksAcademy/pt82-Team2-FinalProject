@@ -22,7 +22,7 @@ const ResetPassword = ({ userId }) => {
         });
 
         try {
-            const token = localStorage.getItem('access_token');
+            const token = localStorage.getItem('token');
             const response = await fetch('https://friendly-computing-machine-pxw4p4r46rq2r7gp-3001.app.github.dev/api/resetpassword', {
                 method: 'POST',
                 headers: {
@@ -48,7 +48,7 @@ const ResetPassword = ({ userId }) => {
                 setNewPassword("");
             } else {
                 const errorMsg = data.msg || "Failed to reset password";
-                setError(errorMsg);
+                    setError(errorMsg);
                 console.error("Password reset failed:", errorMsg, data);
             }
         } catch (err) {
