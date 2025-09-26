@@ -73,7 +73,6 @@ export const Landing = () => {
             </audio>
             {/* Navbar */}
             <nav className="navbar">
-                <span className="logo">E-Venture</span>
                 <button
                     className="navbar-toggle"
                     aria-label="Toggle navigation"
@@ -87,8 +86,6 @@ export const Landing = () => {
                     <a href="#how-it-works" onClick={() => setNavOpen(false)}>How It Works</a>
                     <a href="#why" onClick={() => setNavOpen(false)}>Why E-Venture</a>
                     <a href="#testimonials" onClick={() => setNavOpen(false)}>Testimonials</a>
-                    <Link to="/login" className="login" onClick={() => setNavOpen(false)}>Login</Link>
-                    <Link to="/signup" className="signup" onClick={() => setNavOpen(false)}>Sign Up</Link>
                 </div>
             </nav>
             {/* Hero Section */}

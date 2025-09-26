@@ -1,0 +1,136 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #23234a;
+  padding: 1rem 2rem;
+  color: #fff;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 2px;
+}
+
+.logo:hover {
+  color: #ff7c2d;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.login {
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login:hover {
+  color: #ff2d75;
+}
+
+.signup {
+  color: #ff7c2d;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1.5px solid #ff7c2d;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.signup:hover {
+  background-color: #ff7c2d;
+  color: #fff;
+}
+
+.logout {
+  color: #fff;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.logout:hover {
+  color: #ff2d75;
+}
+
+.logout-confirm-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.logout-confirm-content {
+  background: #23234a;
+  color: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.logout-confirm,
+.logout-cancel {
+  margin: 0 0.5rem;
+  padding: 0.4rem 1.2rem;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.logout-confirm {
+  background: #ff2d75;
+  color: #fff;
+}
+
+.logout-confirm:hover {
+  background: #ff7c2d;
+}
+
+.logout-cancel {
+  background: #fff;
+  color: #23234a;
+}
+
+.logout-cancel:hover {
+  background: #eee;
+}
+
+
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .nav-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

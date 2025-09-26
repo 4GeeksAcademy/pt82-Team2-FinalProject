@@ -81,34 +81,57 @@ def update_profile():
 # Password Reset (request and reset)
 
 
-@api.route('/password-reset/request', methods=['POST'])
-def request_password_reset():
+# @api.route('/password-reset/request', methods=['POST'])
+# def request_password_reset():
+#     data = request.get_json()
+#     email = data.get("email")
+#     user = User.query.filter_by(email=email).first()
+#     if not user:
+#         return jsonify(msg="User not found"), 404
+#     # Generate token and send email (pseudo-code)
+#     reset_token = create_access_token(identity=user.id, expires_delta=False)
+#     # send_email(user.email, reset_token)  # Implement this
+#     return jsonify(msg="Password reset email sent"), 200
+
+
+# @api.route('/password-reset/confirm', methods=['POST'])
+# def confirm_password_reset():
+#     data = request.get_json()
+#     token = data.get("token")
+#     new_password = data.get("new_password")
+#     # Decode token and reset password
+#     from flask_jwt_extended import decode_token
+#     try:
+#         identity = decode_token(token)["sub"]
+#         user = User.query.get(identity)
+#         user.password = generate_password_hash(new_password)
+#         db.session.commit()
+#         return jsonify(msg="Password updated"), 200
+#     except Exception:
+#         return jsonify(msg="Invalid token"), 400
+
+
+@api.route('/resetpassword', methods=['POST'])
+@jwt_required()
+def reset_password():
+    user_id = get_jwt_identity()
     data = request.get_json()
-    email = data.get("email")
-    user = User.query.filter_by(email=email).first()
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify(msg="Current and new passwords required"), 400
+
+    user = User.query.get(user_id)
     if not user:
         return jsonify(msg="User not found"), 404
-    # Generate token and send email (pseudo-code)
-    reset_token = create_access_token(identity=user.id, expires_delta=False)
-    # send_email(user.email, reset_token)  # Implement this
-    return jsonify(msg="Password reset email sent"), 200
 
+    if not check_password_hash(user.password, current_password):
+        return jsonify(msg="Invalid current password"), 400
 
-@api.route('/password-reset/confirm', methods=['POST'])
-def confirm_password_reset():
-    data = request.get_json()
-    token = data.get("token")
-    new_password = data.get("new_password")
-    # Decode token and reset password
-    from flask_jwt_extended import decode_token
-    try:
-        identity = decode_token(token)["sub"]
-        user = User.query.get(identity)
-        user.password = generate_password_hash(new_password)
-        db.session.commit()
-        return jsonify(msg="Password updated"), 200
-    except Exception:
-        return jsonify(msg="Invalid token"), 400
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+    return jsonify(msg="Password updated"), 200
 
 # Login Attempt Limiting (complete logic)
 
@@ -136,7 +159,7 @@ def login():
     #     return jsonify(msg="Email not verified"), 403
 
     login_attempts[identifier] = {"count": 0, "last": now}
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     return jsonify(access_token=access_token), 200
 
 # Email Verification (pseudo-code)
