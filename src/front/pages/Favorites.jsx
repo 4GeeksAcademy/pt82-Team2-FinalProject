@@ -9,6 +9,7 @@ const Favorites = () => {
   // Fetch favorites when component loads
   useEffect(() => {
     fetchFavorites();
+    // eslint-disable-next-line
   }, []);
 
   // Function to fetch all favorite events and members from backend
@@ -18,39 +19,20 @@ const Favorites = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const events = await responseEvents.json();
-      setFavoritesEvents(events);
+      // Ensure events is always an array
+      setFavoritesEvents(Array.isArray(events) ? events : []);
 
       // Fetch favorite members
       const responseMembers = await fetch(`${import.meta.env.VITE_BACKEND_URL}/favorite-members`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const members = await responseMembers.json();
-      setFavoritesMembers(members);
+      // Ensure members is always an array
+      setFavoritesMembers(Array.isArray(members) ? members : []);
     } catch (error) {
       console.error("Error fetching favorites:", error);
-    }
-  };
-
-  // Add a favorite event
-  const addFavoriteEvent = async (eventId) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ event_id: eventId }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        // Add new favorite to state to update UI
-        setFavoritesEvents((prev) => [...prev, data.favorite]);
-      } else {
-        alert(data.msg || data.error);
-      }
-    } catch (error) {
-      console.error("Error adding favorite event:", error);
+      setFavoritesEvents([]);
+      setFavoritesMembers([]);
     }
   };
 
@@ -64,34 +46,11 @@ const Favorites = () => {
       if (response.ok) {
         // Remove event from state
         setFavoritesEvents((prev) =>
-          prev.filter((fav) => fav.event_id !== eventId)
+          Array.isArray(prev) ? prev.filter((favorites) => favorites.event_id !== eventId) : []
         );
       }
     } catch (error) {
       console.error("Error removing favorite event:", error);
-    }
-  };
-
-  // Add a favorite member
-  const addFavoriteMember = async (memberId) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/favorite-members`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ member_id: memberId }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        // Add new member to state
-        setFavoritesMembers((prev) => [...prev, data.favorite]);
-      } else {
-        alert(data.msg || data.error);
-      }
-    } catch (error) {
-      console.error("Error adding favorite member:", error);
     }
   };
 
@@ -105,7 +64,7 @@ const Favorites = () => {
       if (response.ok) {
         // Remove member from state
         setFavoritesMembers((prev) =>
-          prev.filter((fav) => fav.member_id !== memberId)
+          Array.isArray(prev) ? prev.filter((favorites) => favorites.member_id !== memberId) : []
         );
       }
     } catch (error) {
@@ -117,13 +76,14 @@ const Favorites = () => {
   return (
     <div>
       <h2>Favorite Events</h2>
-      {favoritesEvents.length === 0 ? (
-        <p>No favorite events</p> 
+      {Array.isArray(favoritesEvents) && favoritesEvents.length === 0 ? (
+        <p>No favorite events</p>
       ) : (
-        favoritesEvents.map((fav) => (
-          <div key={fav.event_id}>
-            {fav.name}
-            <button onClick={() => removeFavoriteEvent(fav.event_id)}>
+        Array.isArray(favoritesEvents) &&
+        favoritesEvents.map((favorites) => (
+          <div key={favorites.event_id}>
+            {favorites.name}
+            <button onClick={() => removeFavoriteEvent(favorites.event_id)}>
               Remove
             </button>
           </div>
@@ -131,13 +91,14 @@ const Favorites = () => {
       )}
 
       <h2>Favorite Members</h2>
-      {favoritesMembers.length === 0 ? (
+      {Array.isArray(favoritesMembers) && favoritesMembers.length === 0 ? (
         <p>No favorite members</p>
       ) : (
-        favoritesMembers.map((fav) => (
-          <div key={fav.member_id}>
-            {fav.name}
-            <button onClick={() => removeFavoriteMember(fav.member_id)}>
+        Array.isArray(favoritesMembers) &&
+        favoritesMembers.map((favorites) => (
+          <div key={favorites.member_id}>
+            {favorites.name}
+            <button onClick={() => removeFavoriteMember(favorites.member_id)}>
               Remove
             </button>
           </div>
