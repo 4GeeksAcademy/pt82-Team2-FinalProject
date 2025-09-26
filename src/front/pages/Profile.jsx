@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./Profile.css";
 import "./Landing.css";
 //check if token is in local storage,
@@ -217,6 +217,11 @@ function Profile() {
                 </div>
                 <div>
                     <button className="save-button" onClick={handleSave}>Save Button</button>
+                </div>
+                <div style={{ marginTop: "16px", textAlign: "center" }}>
+                    <Link to="/resetpassword" className="reset-password-link">
+                        Reset Password
+                    </Link>
                 </div>
             </div>
         </div>
