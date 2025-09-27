@@ -26,6 +26,9 @@ export const Navbar = () => {
 			<div className="nav-actions">
 				{store.isLoggedIn ? (
 					<>
+						<Link to="/createevent" className="signup" style={{ fontWeight: 700, padding: "0.3rem 0.8rem" }}>
+							+ Create Event
+						</Link>
 						<Link to="/profile" className="login">Profile</Link>
 						<button className="logout" onClick={handleLogout}>Logout</button>
 						{showConfirm && (

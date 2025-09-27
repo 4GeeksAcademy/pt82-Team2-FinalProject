@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Landing.css";
 import "./CreateEvent.css";
 
@@ -10,6 +11,16 @@ function CreateEvent() {
   const [eventDescription, setEventDescription] = useState('');
   const [eventPhoto, setEventPhoto] = useState(null);
   const [message, setMessage] = useState('');
+  const [events, setEvents] = useState(() => {
+    const saved = localStorage.getItem("events");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem("events", JSON.stringify(events));
+  }, [events]);
 
   function handlePhotoChange(e) {
     setEventPhoto(e.target.files[0]);
@@ -17,7 +28,25 @@ function CreateEvent() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (eventName && eventDate && eventLocation && eventTime && eventDescription && eventPhoto) {
+    if (
+      eventName &&
+      eventDate &&
+      eventLocation &&
+      eventTime &&
+      eventDescription &&
+      eventPhoto
+    ) {
+      const newEvent = {
+        id: Date.now().toString(),
+        name: eventName,
+        date: eventDate,
+        location: eventLocation,
+        time: eventTime,
+        description: eventDescription,
+        photo: eventPhoto,
+      };
+
+      setEvents((prev) => [...prev, newEvent]);
       setMessage("Event created!");
       setEventName('');
       setEventDate('');
@@ -26,6 +55,9 @@ function CreateEvent() {
       setEventDescription('');
       setEventPhoto(null);
       e.target.reset();
+
+      // Redirect to the new event's page by id
+      navigate(`/event/${newEvent.id}`);
     } else {
       setMessage("Please complete all fields.");
     }
@@ -101,8 +133,12 @@ function CreateEvent() {
               className="file-upload-input"
             />
           </div>
-          <button type="submit" className="signup-button">Create Event</button>
-          {message && <div style={{ color: "white", marginTop: 10 }}>{message}</div>}
+          <button type="submit" className="signup-button">
+              Create Event
+          </button>
+          {message && (
+            <div style={{ color: "white", marginTop: 10 }}>{message}</div>
+          )}
         </form>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faPoll, faStar, faBell, faUser, faBolt, faGlobe, faCamera, faLock, faMusic, faLaptop, faPalette, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faPoll, faStar, faBell, faUser, faBolt, faGlobe, faCamera, faLock, faMusic, faLaptop, faPalette, faMapMarkerAlt, faBoltLightning } from '@fortawesome/free-solid-svg-icons';
 import "./Landing.css";
 
 export const Landing = () => {
@@ -182,28 +182,28 @@ export const Landing = () => {
                 <h2>Why E-Venture?</h2>
                 <div className="why-panels">
                     <div className="why-panel">
-                        <span className="why-icon">:zap:</span>
+                        <span className="why-icon"><FontAwesomeIcon icon={faBoltLightning} /></span>
                         <h5>Simple & Fast</h5>
                         <p>
                             Create and manage events in seconds with our intuitive interface. No tech skills required—just pure convenience!
                         </p>
                     </div>
                     <div className="why-panel">
-                        <span className="why-icon">:globe_with_meridians:</span>
+                        <span className="why-icon"><FontAwesomeIcon icon={faGlobe} /></span>
                         <h5>Stay Connected</h5>
                         <p>
                             Effortlessly invite friends, family, or colleagues. Get instant updates and never miss an important event again.
                         </p>
                     </div>
                     <div className="why-panel">
-                        <span className="why-icon">:camera_with_flash:</span>
+                        <span className="why-icon"><FontAwesomeIcon icon={faCamera} /></span>
                         <h5>Memories That Last</h5>
                         <p>
                             Share photos, stories, and highlights. Relive your favorite moments and keep your event memories forever.
                         </p>
                     </div>
                     <div className="why-panel">
-                        <span className="why-icon">🔒</span>
+                        <span className="why-icon"><FontAwesomeIcon icon={faLock} /></span>
                         <h5>Private & Secure</h5>
                         <p>
                             Your data and events are protected with industry-standard security. You control who sees your events.

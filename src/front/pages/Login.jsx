@@ -9,6 +9,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { dispatch } = useGlobalReducer();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,10 +42,10 @@ function Login() {
         } else {
           setError(data?.msg || "Failed to login at this endpoint.");
       }
+      } catch {
+        setError("Network error, try again later.");
+      }
     }
-    
-    // If all endpoints failed
-    setError(data?.msg || 'Failed to login on all endpoints');
   };
 
   return (
