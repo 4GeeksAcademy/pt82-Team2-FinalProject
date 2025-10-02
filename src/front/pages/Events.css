@@ -1,0 +1,126 @@
+/* Container for all event cards */
+.event-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* align cards to the left instead of center */
+  gap: 24px 32px; /* horizontal and vertical gaps between cards */
+  padding: 30px; /* space from top/bottom and sides */
+  font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
+}
+
+/* Individual event card */
+.event-card {
+  background: linear-gradient(135deg, #1a1a40, #ff2d75);
+  color: #fff;
+  width: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Lift effect on hover */
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Event image */
+.event-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Card body */
+.event-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Card headings */
+.event-body h3 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Card paragraphs */
+.event-body p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* RSVP & Favorite buttons container */
+.event-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* RSVP buttons */
+.rsvp-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Yes button */
+.yes-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+.yes-btn.selected {
+  background-color: #1c7a2c;
+}
+
+/* Maybe button */
+.maybe-btn {
+  background-color: #ffc107;
+  color: #333;
+}
+.maybe-btn.selected {
+  background-color: #e0a800;
+  color: #fff;
+}
+
+/* Favorite heart emoji */
+.favorite-heart {
+  font-size: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s;
+}
+.favorite-heart:hover {
+  transform: scale(1.2);
+}
+.favorite-heart.favorited {
+  color: #ffeb3b; /* yellow when favorited */
+  text-shadow: 1px 1px 2px #000;
+}
+
+/* RSVP display text */
+.event-body p strong {
+  font-weight: 700;
+}
+/* Favorite heart emoji */
+.favorite-emoji {
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer; /* makes it clickable */
+  transition: color 0.3s;
+  user-select: none; /* prevents accidental text selection */
+}
+
+.favorite-emoji.favorited {
+  color: #ff2d75; /* or any accent color you want */
+}
