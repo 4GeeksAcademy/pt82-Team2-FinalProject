@@ -9,6 +9,7 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { dispatch } = useGlobalReducer();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -34,12 +35,13 @@ function Login() {
           return;
         } else {
           setError(data?.msg || "Failed to login at this endpoint.");
-        }
+      }
       } catch {
         setError("Network error, try again later.");
       }
     }
   };
+
   return (
     <div className="login-page">
       <h1 className="login-title">Account Login</h1>
