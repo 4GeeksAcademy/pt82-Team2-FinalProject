@@ -120,7 +120,23 @@
   background: #eee;
 }
 
+.profile-link {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+}
 
+.navbar-profile-pic {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid currentColor;
+}
+
+.navbar-profile-icon {
+  font-size: 1.2rem;
+}
 
 @media (max-width: 768px) {
   .navbar {

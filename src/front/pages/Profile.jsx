@@ -1,227 +1,178 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import "./Profile.css";
-import "./Landing.css";
-//check if token is in local storage,
-//if not redirect to login page
 
 function Profile() {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-
-    // const [password, setPassword] = useState("");
-    // const [newPassword, setNewPassword] = useState("");
-    // const [confirmPassword, setConfirmPassword] = useState("");
-
-    const [profilePhoto, setProfilePhoto] = useState("");
-
-    const [location, setLocation] = useState("");
-    const [language, setLanguage] = useState("");
-
+    const [userData, setUserData] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedFirstName, setEditedFirstName] = useState('');
+    const [editedLastName, setEditedLastName] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        //check if token exists in local storage, if it does then fetch profile
-        // if it doesnt, redirect to login
-        const token = localStorage.getItem("token");
-        // if (!token) {
-        //     navigate("/login");
-        //     return;
-        // }
-
-        const fetchProfile = async () => {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profile`, {
-                headers: {
-                    "Authorization": `Bearer ${token}` //needed to access protected route
-                }
-            });
-
-            // Check for server errors (both # code and text)
-            if (!response.ok) {
-                console.error("Server error:", response.status, response.statusText);
-                return;
-            }
-
+        const storedUserData = localStorage.getItem('userData') || localStorage.getItem('userProfile');
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        if (storedUserData) {
             try {
-                // Parse JSON & update state only if server responded OK
-                const data = await response.json();
-
-                setFirstName(data.first_name || "");
-                setLastName(data.last_name || "");
-                setEmail(data.email || "");
-                setProfilePhoto(data.profile_photo || "");
-
-                // setPassword(data.password || "");
-                // setNewPassword(data.new_pass_word || "");
-                // setConfirmPassword(data.confirm_pass_word || "");
-
-                setLocation(data.location || "");
-                setLanguage(data.language || "");
-
-            } catch (error) {
-                // Handle parsing/network errors
-                console.error("Network or parsing error:", error);
+                const parsedData = JSON.parse(storedUserData);
+                setUserData(parsedData);
+                setEditedFirstName(parsedData.firstName || '');
+                setEditedLastName(parsedData.lastName || '');
+            } catch {
+                setError('Failed to load user data');
             }
-        };
-
-        fetchProfile();
+        } else {
+            setError('No user data found');
+        }
+        setLoading(false);
     }, [navigate]);
 
-    const handleSave = async (e) => {
-        e.preventDefault();
-        try {
-            const token = localStorage.getItem("token");
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        navigate('/login');
+    };
 
-            const payload = {
-                first_name: firstName,
-                last_name: lastName,
-                email: email,
-                profile_photo: profilePhoto,
-                // password: password,
-                // new_pass_word: newPassword,
-                // confirm_pass_word: confirmPassword,
-                location: location,
-                language: language
-            };
+    const handleEditToggle = () => {
+        if (isEditing) {
+            setEditedFirstName(userData.firstName || '');
+            setEditedLastName(userData.lastName || '');
+        }
+        setIsEditing(!isEditing);
+    };
 
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profile`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}` //include token for save too
-                },
-                body: JSON.stringify(payload)
+    const handleSaveName = () => {
+        const updatedUserData = {
+            ...userData,
+            firstName: editedFirstName,
+            lastName: editedLastName
+        };
+        setUserData(updatedUserData);
+        localStorage.setItem('userProfile', JSON.stringify(updatedUserData));
+        localStorage.setItem('userData', JSON.stringify(updatedUserData));
+        setIsEditing(false);
+        window.dispatchEvent(new Event('storage'));
+    };
+
+    const compressImage = (file, maxWidth = 200, quality = 0.7) => new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => {
+            let { width, height } = img;
+            if (width > maxWidth) height = (height * maxWidth) / width, width = maxWidth;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(resolve, 'image/jpeg', quality);
+        };
+        img.src = URL.createObjectURL(file);
+    });
+
+    const handleProfilePictureChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            compressImage(file, 200, 0.7).then(compressedFile => {
+                const reader = new FileReader();
+                reader.onload = function (readerEvent) {
+                    const base64Photo = readerEvent.target.result;
+                    const updatedUserData = { ...userData, profilePicture: base64Photo };
+                    setUserData(updatedUserData);
+                    localStorage.setItem('userProfile', JSON.stringify(updatedUserData));
+                    localStorage.setItem('userData', JSON.stringify(updatedUserData));
+                    window.dispatchEvent(new Event('storage'));
+                };
+                reader.readAsDataURL(compressedFile);
             });
-
-            if (!response.ok) {
-                console.error("Server error:", response.status, response.statusText);
-                return;
-            }
-
-            const data = await response.json();
-            console.log("Profile saved successfully:", data);
-
-        } catch (error) {
-            console.error("Error saving profile:", error);
         }
     };
 
+    if (loading) return <div className="profile-loading">Loading...</div>;
+    if (error) return <div className="profile-error">{error}</div>;
+
     return (
-        <div className="profile-page">
-            <h2 className="My-profile-title">My Profile</h2>
-            <div className="container">
-                <p>First Name: {firstName}</p>
-                <p>Last Name: {lastName}</p>
-                <p>Email: {email}</p>
-
-                {/* <p>Password: {password}</p>
-            <p>New Password: {newPassword}</p>
-            <p>Confirm Password: {confirmPassword}</p> */}
-
-                {profilePhoto && <img src={profilePhoto} alt="Profile" width="100" />}
-
-                <p>Location: {location}</p>
-                <p>Language: {language}</p>
-
-                <div className="form-group"><div>
-                    <label>
-                        First Name:
-                        <input
-                            type="text"
-                            value={firstName}
-                            onChange={e => setFirstName(e.target.value)}
-                        />
-                    </label>
-                </div>
-                    <div>
-                        <label>
-                            Last Name:
-                            <input
-                                type="text"
-                                value={lastName}
-                                onChange={e => setLastName(e.target.value)}
-                            />
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Email:
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                            />
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Profile Photo URL:
-                            <input
-                                type="text"
-                                value={profilePhoto}
-                                onChange={e => setProfilePhoto(e.target.value)}
-                            />
-                        </label>
-                    </div>
-                    {/* <div>
-                <label>
-                    Password:
-                    <input
-                        type="text"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                    />
-                </label>
+        <div className="profile-container">
+            <div className="profile-header">
+                <h1>Profile</h1>
             </div>
-            <div>
-                <label>
-                    New Password:
-                    <input
-                        type="text"
-                        value={newPassword}
-                        onChange={e => setNewPassword(e.target.value)}
-                    />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Confirm Password:
-                    <input
-                        type="text"
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                    />
-                </label>
-            </div> */}
-                    <div>
-                        <label>
-                            Location:
+            <div className="profile-card">
+                <div className="profile-info">
+                    <div className="profile-picture-section">
+                        <div className="profile-picture-container">
+                            {userData.profilePicture ? (
+                                <img src={userData.profilePicture} alt="Profile" className="profile-picture" />
+                            ) : (
+                                <div className="profile-picture-placeholder">
+                                    {userData.firstName && userData.lastName ? `${userData.firstName[0]}${userData.lastName[0]}` : '👤'}
+                                </div>
+                            )}
+                            <label htmlFor="profile-pic-upload" className="profile-picture-upload-btn">+</label>
                             <input
-                                type="text"
-                                value={location}
-                                onChange={e => setLocation(e.target.value)}
+                                id="profile-pic-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleProfilePictureChange}
+                                style={{ display: 'none' }}
                             />
-                        </label>
+                        </div>
                     </div>
-                    <div>
-                        <label>
-                            Language:
-                            <input
-                                type="dropdown"
-                                value={language}
-                                onChange={e => setLanguage(e.target.value)}
-                            />
-                        </label>
+                    <h2>Welcome, {userData.firstName} {userData.lastName}!</h2>
+                    <div className="profile-details">
+                        <div className="profile-field">
+                            <label>First Name:</label>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedFirstName}
+                                    onChange={(e) => setEditedFirstName(e.target.value)}
+                                    className="profile-edit-input"
+                                />
+                            ) : (
+                                <span>{userData.firstName}</span>
+                            )}
+                        </div>
+                        <div className="profile-field">
+                            <label>Last Name:</label>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedLastName}
+                                    onChange={(e) => setEditedLastName(e.target.value)}
+                                    className="profile-edit-input"
+                                />
+                            ) : (
+                                <span>{userData.lastName}</span>
+                            )}
+                        </div>
+                        <div className="profile-field">
+                            <label>Email:</label>
+                            <span>{userData.email}</span>
+                        </div>
+                        {userData.signupDate && (
+                            <div className="profile-field">
+                                <label>Member Since:</label>
+                                <span>{new Date(userData.signupDate).toLocaleDateString()}</span>
+                            </div>
+                        )}
                     </div>
-                </div>
-                <div>
-                    <button className="save-button" onClick={handleSave}>Save Button</button>
-                </div>
-                <div style={{ marginTop: "16px", textAlign: "center" }}>
-                    <Link to="/resetpassword" className="reset-password-link">
-                        Reset Password
-                    </Link>
+                    <div className="profile-actions">
+                        {isEditing ? (
+                            <div className="edit-actions">
+                                <button onClick={handleSaveName} className="save-button">Save</button>
+                                <button onClick={handleEditToggle} className="cancel-button">Cancel</button>
+                            </div>
+                        ) : (
+                            <button onClick={handleEditToggle} className="edit-button">Edit Name</button>
+                        )}
+                        <button onClick={handleLogout} className="logout-button">Logout</button>
+                        <a href="/reset-password" className="reset-password-link">Reset Password</a>
+                    </div>
                 </div>
             </div>
         </div>

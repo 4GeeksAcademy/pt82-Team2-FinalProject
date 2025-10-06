@@ -1,97 +1,154 @@
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import "./EventDetails.css";
 
-const defaultEvent = {
-    title: "Sample Event",
-    date: "2025-10-01",
-    location: "Main Hall",
-    rsvp: 12,
-    description: "A simple event for demonstration.",
-    agenda: [
-        { time: "10:00 AM", activity: "Welcome & Registration" },
-        { time: "11:00 AM", activity: "Keynote Speech" }
-    ],
-    attendees: ["Alice", "Bob", "Charlie"],
-    poll: { question: "Favorite session?", options: ["Keynote", "Workshop"], votes: [2, 3] }
+const getCurrentUser = () => {
+  const userData = localStorage.getItem("userData") || localStorage.getItem("userProfile");
+  if (userData) {
+    try {
+      const parsed = JSON.parse(userData);
+      if (parsed.email && parsed.firstName && parsed.lastName) {
+        return parsed;
+      }
+    } catch {}
+  }
+  return { id: "guest", firstName: "Guest", lastName: "User", email: "guest@example.com" };
 };
 
-const EventDetails = ({ event = defaultEvent }) => {
-    const [agenda, setAgenda] = useState(event.agenda);
-    const [newAgenda, setNewAgenda] = useState({ time: "", activity: "" });
-    const [attendees, setAttendees] = useState(event.attendees);
-    const [poll, setPoll] = useState(event.poll);
+const rsvpOptions = ["yes", "no", "maybe"];
 
-    // Agenda handlers
-    const addAgenda = () => {
-        if (newAgenda.time && newAgenda.activity) {
-            setAgenda([...agenda, newAgenda]);
-            setNewAgenda({ time: "", activity: "" });
-        }
-    };
-    const deleteAgenda = idx => setAgenda(agenda.filter((_, i) => i !== idx));
+export default function EventDetails() {
+  const { eventId } = useParams();
+  const [event, setEvent] = useState(null);
+  const [attendees, setAttendees] = useState([]);
+  const [photoURL, setPhotoURL] = useState(null);
+  const [rsvp, setRsvp] = useState("");
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
 
-    // RSVP handler (simulate adding attendee)
-    const addAttendee = name => {
-        if (name) setAttendees([...attendees, name]);
-    };
+  useEffect(() => {
+    setCurrentUser(getCurrentUser());
+  }, []);
 
-    // Poll voting
-    const vote = idx => {
-        const newVotes = poll.votes.map((v, i) => (i === idx ? v + 1 : v));
-        setPoll({ ...poll, votes: newVotes });
-    };
+  const handleRsvp = (response) => {
+    if (!currentUser || !event) return;
 
-    return (
-        <div className="event-details-container">
-            <div className="event-details-card">
-                <h2>{event.title}</h2>
-                <div className="event-details-info">
-                    <p><FontAwesomeIcon icon={faCalendarAlt} /> {event.date}</p>
-                    <p><FontAwesomeIcon icon={faMapMarkerAlt} /> {event.location}</p>
-                    <p><FontAwesomeIcon icon={faUsers} /> RSVPs: {attendees.length}</p>
-                    <p><FontAwesomeIcon icon={faInfoCircle} /> {event.description}</p>
-                </div>
-                <hr className="event-details-divider" />
-                {/* Agenda Section */}
-                <section className="event-section">
-                    <h3>Agenda / Schedule</h3>
-                    <ul>
-                        {agenda.map((item, idx) => (
-                            <li key={idx}>
-                                <span>{item.time} - {item.activity}</span>
-                                <button className="event-details-btn" onClick={() => deleteAgenda(idx)}><FontAwesomeIcon icon={faTrash} /></button>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className="event-details-inputs">
-                        <input className="signup-input" placeholder="Time" value={newAgenda.time} onChange={e => setNewAgenda({ ...newAgenda, time: e.target.value })} />
-                        <input className="signup-input" placeholder="Activity" value={newAgenda.activity} onChange={e => setNewAgenda({ ...newAgenda, activity: e.target.value })} />
-                        <button className="event-details-btn" onClick={addAgenda}><FontAwesomeIcon icon={faPlus} /> Add</button>
-                    </div>
-                </section>
-                <hr className="event-details-divider" />
-                {/* RSVP Section */}
-                <section className="event-section">
-                    <h3>Attendees / RSVP</h3>
-                    <ul>
-                        {attendees.map((name, idx) => <li key={idx}>{name}</li>)}
-                    </ul>
-                    <input className="signup-input" placeholder="Add attendee" onKeyDown={e => { if (e.key === "Enter") { addAttendee(e.target.value); e.target.value = ""; } }} />
-                </section>
-                <hr className="event-details-divider" />
-                {/* Polling Section */}
-                <section className="event-section">
-                    <h3>Poll / Voting</h3>
-                    <p>{poll.question}</p>
-                    <div className="event-details-inputs">
-                        {poll.options.map((opt, idx) => (
-                            <button key={idx} className="event-details-btn" onClick={() => vote(idx)}>
-                                {opt} ({poll.votes[idx]}) <FontAwesomeIcon icon={faPoll} />
-                            </button>
-                        ))}
-                    </div>
-                </section>
-            </div>
-        </div>
+    const userId = currentUser.email || currentUser.id;
+    const updatedAttendees = [...attendees];
+    const idx = updatedAttendees.findIndex((a) => a.id === userId);
+
+    if (idx >= 0) {
+      updatedAttendees[idx] = { ...updatedAttendees[idx], response };
+    } else {
+      updatedAttendees.push({
+        id: userId,
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        response,
+      });
+    }
+
+    setAttendees(updatedAttendees);
+    setRsvp(response);
+
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    const updatedEvents = events.map((ev) =>
+      ev.id === eventId ? { ...ev, attendees: updatedAttendees } : ev
     );
-};
+    localStorage.setItem("events", JSON.stringify(updatedEvents));
+  };
 
-export default EventDetails;
+  useEffect(() => {
+    try {
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      const foundEvent = events.find((ev) => ev.id === eventId);
+      if (foundEvent) {
+        setEvent(foundEvent);
+        setAttendees(foundEvent.attendees || []);
+
+        if (currentUser && currentUser.email !== "guest@example.com") {
+          const userId = currentUser.email || currentUser.id;
+          const userAttendee = (foundEvent.attendees || []).find((a) => a.id === userId);
+          setRsvp(userAttendee ? userAttendee.response : "");
+        }
+
+        setPhotoURL(
+          foundEvent.photo && typeof foundEvent.photo === "string" && foundEvent.photo.startsWith("data:")
+            ? foundEvent.photo
+            : null
+        );
+      } else {
+        setEvent(null);
+        setAttendees([]);
+        setPhotoURL(null);
+        setRsvp("");
+      }
+    } catch {
+      setEvent(null);
+    }
+  }, [eventId, currentUser]);
+
+  if (!event) {
+    return (
+      <div className="event-details-container">
+        <div className="event-details-card">
+          <h2>Event Not Found</h2>
+          <p>No event exists with this ID.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="event-details-container">
+      {photoURL && (
+        <div className="event-photo-banner-container">
+          <img src={photoURL} alt="Event Banner" className="event-photo-banner" />
+        </div>
+      )}
+      <div className="event-details-card">
+        <h2>{event.name}</h2>
+        <div className="event-details-info-inline">
+          <span className="event-info-item">
+            <i className="fa-solid fa-calendar-alt" /> {event.date}
+          </span>
+          <span className="event-info-item">
+            <i className="fa-solid fa-clock" /> {event.time || "Time TBD"}
+          </span>
+          <span className="event-info-item">
+            <i className="fa-solid fa-map-marker-alt" /> {event.location}
+          </span>
+        </div>
+        <div className="event-details-description">
+          <p>
+            <i className="fa-solid fa-info-circle" /> {event.description}
+          </p>
+        </div>
+        <hr className="event-details-divider" />
+        <section className="event-section">
+          <h3>RSVP</h3>
+          <div className="event-details-inputs" style={{ gap: "1rem" }}>
+            {rsvpOptions.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                className={`event-details-btn${rsvp === opt ? " selected" : ""}`}
+                onClick={() => handleRsvp(opt)}
+              >
+                {opt.charAt(0).toUpperCase() + opt.slice(1)}
+              </button>
+            ))}
+          </div>
+          <h4>Attendees</h4>
+          <ul>
+            {attendees.map(({ id, firstName, lastName, response }) => (
+              <li key={id}>
+                {firstName} {lastName} {response ? `(${response})` : ""}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
