@@ -22,12 +22,67 @@ function CreateEvent() {
     localStorage.setItem("events", JSON.stringify(events));
   }, [events]);
 
+  function compressImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function getLocalStorageSize() {
+    let total = 0;
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += localStorage[key].length + key.length;
+      }
+    }
+    return total;
+  }
+
+  function cleanupOldEvents() {
+    try {
+      const events = JSON.parse(localStorage.getItem("events")) || [];
+      if (events.length > 10) {
+        const recentEvents = events.slice(-10);
+        localStorage.setItem("events", JSON.stringify(recentEvents));
+        console.log("Cleaned up old events, kept most recent 10");
+      }
+    } catch (e) {
+      console.error("Error cleaning up events:", e);
+    }
+  }
+
   function handlePhotoChange(e) {
     setEventPhoto(e.target.files[0]);
   }
 
   function handleSubmit(e) {
     e.preventDefault();
+
+    const currentUser = JSON.parse(localStorage.getItem("userProfile"));
+
+    if (!currentUser) {
+      setMessage("Please log in to create an event.");
+      return;
+    }
+
     if (
       eventName &&
       eventDate &&
@@ -36,28 +91,91 @@ function CreateEvent() {
       eventDescription &&
       eventPhoto
     ) {
-      const newEvent = {
-        id: Date.now().toString(),
-        name: eventName,
-        date: eventDate,
-        location: eventLocation,
-        time: eventTime,
-        description: eventDescription,
-        photo: eventPhoto,
-      };
+      const currentSize = getLocalStorageSize();
+      if (currentSize > 4 * 1024 * 1024) { // keeps at 4 mb
+        cleanupOldEvents();
+      }
 
-      setEvents((prev) => [...prev, newEvent]);
-      setMessage("Event created!");
-      setEventName('');
-      setEventDate('');
-      setEventLocation('');
-      setEventTime('');
-      setEventDescription('');
-      setEventPhoto(null);
-      e.target.reset();
+      compressImage(eventPhoto, 600, 0.6).then(compressedFile => {
+        const reader = new FileReader();
+        reader.onload = function (readerEvent) {
+          try {
+            const base64Photo = readerEvent.target.result;
 
-      // Redirect to the new event's page by id
-      navigate(`/event/${newEvent.id}`);
+            const newEvent = {
+              id: Date.now().toString(),
+              name: eventName,
+              date: eventDate,
+              location: eventLocation,
+              time: eventTime,
+              description: eventDescription,
+              photo: base64Photo,
+              createdBy: {
+                id: currentUser.id || currentUser.email,
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+                email: currentUser.email,
+                profilePicture: currentUser.profilePicture
+              },
+              createdAt: new Date().toISOString(),
+              attendees: []
+            };
+
+            try {
+              const currentEvents = JSON.parse(localStorage.getItem("events")) || [];
+              const updatedEvents = [...currentEvents, newEvent];
+              localStorage.setItem("events", JSON.stringify(updatedEvents));
+
+              setEvents(updatedEvents);
+              setMessage("Event created!");
+
+              // erase
+              setEventName('');
+              setEventDate('');
+              setEventLocation('');
+              setEventTime('');
+              setEventDescription('');
+              setEventPhoto(null);
+              e.target.reset();
+
+              console.log("Event created with ID:", newEvent.id);
+
+              setTimeout(() => {
+                navigate(`/event/${newEvent.id}`);
+              }, 100);
+
+            } catch (storageError) {
+              console.error("Storage error:", storageError);
+              if (storageError.name === 'QuotaExceededError') {
+                cleanupOldEvents();
+                try {
+                  const currentEvents = JSON.parse(localStorage.getItem("events")) || [];
+                  const updatedEvents = [...currentEvents, newEvent];
+                  localStorage.setItem("events", JSON.stringify(updatedEvents));
+                  setEvents(updatedEvents);
+                  setMessage("Event created! (Storage cleaned up)");
+                  setTimeout(() => navigate(`/event/${newEvent.id}`), 100);
+                } catch (retryError) {
+                  setMessage("Storage full. Please try a smaller image or contact support.");
+                }
+              } else {
+                setMessage("Error saving event. Please try again.");
+              }
+            }
+
+          } catch (e) {
+            console.error("Error processing event:", e);
+            setMessage("Error creating event. Please try again.");
+          }
+        };
+
+        reader.onerror = function () {
+          setMessage("Error reading photo file. Please try again.");
+        };
+
+        reader.readAsDataURL(compressedFile);
+      });
+
     } else {
       setMessage("Please complete all fields.");
     }
@@ -104,6 +222,9 @@ function CreateEvent() {
             style={{ minHeight: "80px" }}
           />
           <div className="photo-upload-wrapper">
+            <label className="photo-upload-title" htmlFor="file-upload">
+              Add Banner Photo:
+            </label>
             {eventPhoto ? (
               <div className="photo-preview-container">
                 <img
@@ -134,7 +255,7 @@ function CreateEvent() {
             />
           </div>
           <button type="submit" className="signup-button">
-              Create Event
+            Create Event
           </button>
           {message && (
             <div style={{ color: "white", marginTop: 10 }}>{message}</div>
