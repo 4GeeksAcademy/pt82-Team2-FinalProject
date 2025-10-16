@@ -26,6 +26,28 @@ function Signup() {
       if (!response.ok) {
         throw new Error(data.msg || 'Signup failed');
       }
+
+      const userData = {
+        email,
+        firstName,
+        lastName,
+        signupDate: new Date().toISOString()
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
+
+      const profileData = {
+        email,
+        firstName,
+        lastName,
+        signupDate: new Date().toISOString(),
+        profilePicture: null,
+        id: email 
+      };
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+
+      const token = data.token || 'temp-signup-token';
+      localStorage.setItem('token', token);
+
       setSuccess(data.msg || 'Signup successful!');
       setTimeout(() => navigate('/login'), 1500);
     } catch (error) {

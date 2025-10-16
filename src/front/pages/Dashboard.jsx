@@ -191,45 +191,11 @@ function Dashboard() {
                 </div>
                 <div className="dashboard-card" id="my-events">
                     <h2>My Events</h2>
-                    {events.length > 0 ? (
-                        <ul>
-                            {events.map(event => (
-                                <li key={event.id} className="dashboard-event">
-                                    <div className="dashboard-event-details">
-                                        <div><strong>Name:</strong> {event.title}</div>
-                                        <div><strong>Location:</strong> {event.location}</div>
-                                        <div><strong>Time:</strong> {event.time}</div>
-                                        <div><strong>Description:</strong> {event.description}</div>
-                                        <div><strong>Cost:</strong> {event.cost ? event.cost : 'Free'}</div>
-                                    </div>
-                                    <div className="dashboard-event-rsvp">
-                                        <button className="dashboard-button" onClick={() => handleRSVP(event.id, 'yes')}>Yes</button>
-                                        <button className="dashboard-button" onClick={() => handleRSVP(event.id, 'maybe')}>Maybe</button>
-                                        <button className="dashboard-button" onClick={() => handleRSVP(event.id, 'no')}>No</button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No events found.</p>
-                    )}
-                    {rsvpMsg && <div className="dashboard-update-msg">{rsvpMsg}</div>}
+                    <div className="dashboard-coming-soon">Coming Soon!</div>
                 </div>
                 <div className="dashboard-card">
                     <h2>Favorites</h2>
-                    {favorites.length > 0 ? (
-                        <ul>
-                            {favorites.map(fav => (
-                                <li key={fav.id}>
-                                    Event #{fav.event_id}
-                                    <button className="dashboard-button" style={{ marginLeft: '1rem' }} onClick={() => handleRemoveFavorite(fav.event_id)}>Remove</button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No favorites found.</p>
-                    )}
-                    {favMsg && <div className="dashboard-update-msg">{favMsg}</div>}
+                    <div className="dashboard-coming-soon">Coming Soon!</div>
                 </div>
             </div>
         </div>
