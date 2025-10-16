@@ -1,111 +1,61 @@
 import React, { useState, useEffect } from "react";
 import "./Events.css";
 
-const initialEvent = [
-  {
-    id: 1,
-    title: "Event",
-    description: "An event for demonstration.",
-    location: "Main Hall",
-    date: "2025-10-01",
-    time: "10:00 AM",
-    image: "https://via.placeholder.com/400x200?text=Event+Image"
-  },
-  {
-    id: 2,
-    title: "Meetup",
-    description: "Meet other React developers.",
-    location: "Community Center",
-    date: "2025-10-05",
-    time: "2:00 PM",
-    image: "https://via.placeholder.com/400x200?text=React+Meetup"
-  },
-  {
-    id: 3,
-    title: "Event",
-    description: "An event for demonstration.",
-    location: "Main Hall",
-    date: "2025-10-01",
-    time: "10:00 AM",
-    image: "https://via.placeholder.com/400x200?text=Event+Image"
-  },
-  {
-    id: 4,
-    title: "Meetup",
-    description: "Meet other React developers.",
-    location: "Community Center",
-    date: "2025-10-05",
-    time: "2:00 PM",
-    image: "https://via.placeholder.com/400x200?text=React+Meetup"
-  },
-  {
-    id: 5,
-    title: "Event",
-    description: "An event for demonstration.",
-    location: "Main Hall",
-    date: "2025-10-01",
-    time: "10:00 AM",
-    image: "https://via.placeholder.com/400x200?text=Event+Image"
-  },
-  {
-    id: 6,
-    title: "Meetup",
-    description: "Meet other React developers.",
-    location: "Community Center",
-    date: "2025-10-05",
-    time: "2:00 PM",
-    image: "https://via.placeholder.com/400x200?text=React+Meetup"
-  },
-];
-
 const Event = () => {
-  const [events] = useState(initialEvent);
+  const [events, setEvents] = useState([]);
   const [rsvps, setRsvps] = useState({}); // { eventId: "yes" | "maybe" }
   const [favorites, setFavorites] = useState([]);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Fetch favorites and RSVPs from backend on load
+    // Fetch events, favorites, and RSVPs from backend on load
     const fetchData = async () => {
       try {
-        // Favorites
-        const favRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
+        // Events
+        const responseEvents = await fetch(`${import.meta.env.VITE_BACKEND_URL}/events`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const favData = await favRes.json();
-        setFavorites(Array.isArray(favData) ? favData.map(f => f.event_id) : []);
+        const eventsData = await responseEvents.json();
+        setEvents(Array.isArray(eventsData) ? eventsData : []);
+
+        // Favorites
+        const responseFavorites = await fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const favoritesData = await responseFavorites.json();
+        setFavorites(Array.isArray(favoritesData) ? favoritesData.map(f => f.event_id) : []);
 
         // RSVPs
-        const rsvpRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/rsvps`, {
+        const responseRsvps = await fetch(`${import.meta.env.VITE_BACKEND_URL}/rsvps`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const rsvpData = await rsvpRes.json();
-        const rsvpMap = {};
-        if (Array.isArray(rsvpData)) {
-          rsvpData.forEach(item => {
-            rsvpMap[item.event_id] = item.rsvp;
+        const rsvpsData = await responseRsvps.json();
+        const rsvpsMap = {};
+        if (Array.isArray(rsvpsData)) {
+          rsvpsData.forEach(item => {
+            rsvpsMap[item.event_id] = item.rsvp;
           });
         }
-        setRsvps(rsvpMap);
-      } catch (err) {
-        console.error("Error fetching data:", err);
+        setRsvps(rsvpsMap);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, [token]);
 
   // Toggle RSVP (Yes/Maybe)
-  const handleRSVP = (ev, status) => {
-    setRsvps(prev => {
-      const current = prev[ev.id];
+  const handleRSVP = (event, status) => {
+    setRsvps(previous => {
+      const current = previous[event.id];
 
       if (current === status) {
         // unselect
-        const updated = { ...prev };
-        delete updated[ev.id];
+        const updated = { ...previous };
+        delete updated[event.id];
 
         // DELETE 
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/rsvps/${ev.id}`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/rsvps/${event.id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
         }).catch(console.error);
@@ -113,16 +63,16 @@ const Event = () => {
         return updated;
       } else {
         // select
-        const updated = { ...prev, [ev.id]: status };
+        const updated = { ...previous, [event.id]: status };
 
         // POST
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/rsvps`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/events/${event.id}/rsvp`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ event_id: ev.id, rsvp: status }),
+          body: JSON.stringify({ event_id: event.id, rsvp: status }),
         }).catch(console.error);
 
         return updated;
@@ -131,16 +81,16 @@ const Event = () => {
   };
 
   // Toggle favorite
-  const handleFavorite = (ev) => {
-    if (favorites.includes(ev.id)) {
-      setFavorites(prev => prev.filter(f => f !== ev.id));
+  const handleFavorite = (event) => {
+    if (favorites.includes(event.id)) {
+      setFavorites(previous => previous.filter(f => f !== event.id));
       // DELETE in background
-      fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites/${ev.id}`, {
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites/${event.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       }).catch(console.error);
     } else {
-      setFavorites(prev => [...prev, ev.id]);
+      setFavorites(previous => [...previous, event.id]);
       // POST in background
       fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
         method: "POST",
@@ -148,7 +98,7 @@ const Event = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ event_id: ev.id }),
+        body: JSON.stringify({ event_id: event.id }),
       }).catch(console.error);
     }
   };
@@ -157,28 +107,29 @@ const Event = () => {
 
   return (
     <div className="event-list">
-      {events.map(ev => (
-        <div key={ev.id} className="event-card">
-          <img src={ev.image} alt="Event" className="event-img" />
+      <h2 className="discover-title">Discover Events</h2>
+      {events.map(event => (
+        <div key={event.id} className="event-card">
+          <img src={event.image} alt="Event" className="event-img" />
           <div className="event-body">
-            <h3>{ev.title}</h3>
-            <p><strong>Description:</strong> {ev.description}</p>
-            <p><strong>Location:</strong> {ev.location}</p>
-            <p><strong>Date:</strong> {ev.date}</p>
-            <p><strong>Time:</strong> {ev.time}</p>
+            <h3>{event.title}</h3>
+            <p><strong>Description:</strong> {event.description}</p>
+            <p><strong>Location:</strong> {event.location}</p>
+            <p><strong>Date:</strong> {event.date}</p>
+            <p><strong>Time:</strong> {event.time}</p>
 
             <div className="event-actions">
               <button
                 title="Yes"
-                onClick={() => handleRSVP(ev, "yes")}
-                className={`rsvp-btn yes-btn${rsvps[ev.id] === "yes" ? " selected" : ""}`}
+                onClick={() => handleRSVP(event, "yes")}
+                className={`rsvp-btn yes-btn${rsvps[event.id] === "yes" ? " selected" : ""}`}
               >
                 Yes
               </button>
               <button
                 title="Maybe"
-                onClick={() => handleRSVP(ev, "maybe")}
-                className={`rsvp-btn maybe-btn${rsvps[ev.id] === "maybe" ? " selected" : ""}`}
+                onClick={() => handleRSVP(event, "maybe")}
+                className={`rsvp-btn maybe-btn${rsvps[event.id] === "maybe" ? " selected" : ""}`}
               >
                 Maybe
               </button>
@@ -186,15 +137,15 @@ const Event = () => {
                 role="button"
                 aria-label="Favorite"
                 title="Favorite"
-                className={`favorite-emoji${isFavorited(ev.id) ? " favorited" : ""}`}
-                onClick={() => handleFavorite(ev)}
+                className={`favorite-emoji${isFavorited(event.id) ? " favorited" : ""}`}
+                onClick={() => handleFavorite(event)}
               >
                 ♥
               </span>
             </div>
 
-            {rsvps[ev.id] && (
-              <p>RSVP: <strong>{rsvps[ev.id].toUpperCase()}</strong></p>
+            {rsvps[event.id] && (
+              <p>RSVP: <strong>{rsvps[event.id].toUpperCase()}</strong></p>
             )}
           </div>
         </div>

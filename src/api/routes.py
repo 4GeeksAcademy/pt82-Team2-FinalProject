@@ -194,29 +194,158 @@ def signup():
 # Event CRUD
 
 
+# @api.route('/events', methods=['POST'])
+# @jwt_required()
+# def create_event():
+#     data = request.get_json()
+#     title = data.get('title')
+#     description = data.get('description')
+#     location = data.get('location')
+#     date = data.get('date')
+#     time_ = data.get('time')
+#     if not title or not location or not date or not time_:
+#         return jsonify({"error": "Missing fields"}), 400
+#     event = Event(title=title, description=description,
+#                   location=location, date=date, time=time_)
+#     db.session.add(event)
+#     db.session.commit()
+#     return jsonify(event.serialize()), 201
+
+
+# @api.route('/events', methods=['GET'])
+# def list_events():
+#     events = Event.query.all()
+#     return jsonify([event.serialize() for event in events]), 200
+
+
+# @api.route('/events/<int:event_id>', methods=['GET'])
+# def get_event(event_id):
+#     event = Event.query.get(event_id)
+#     if not event:
+#         return jsonify({"error": "Event not found"}), 404
+#     return jsonify(event.serialize()), 200
+
+
+# @api.route('/events/<int:event_id>', methods=['PUT'])
+# @jwt_required()
+# def update_event(event_id):
+#     event = Event.query.get(event_id)
+#     if not event:
+#         return jsonify({"error": "Event not found"}), 404
+#     data = request.get_json()
+#     event.title = data.get('title', event.title)
+#     event.description = data.get('description', event.description)
+#     event.location = data.get('location', event.location)
+#     event.date = data.get('date', event.date)
+#     event.time = data.get('time', event.time)
+#     db.session.commit()
+#     return jsonify(event.serialize()), 200
+
+
+# @api.route('/events/<int:event_id>', methods=['DELETE'])
+# @jwt_required()
+# def delete_event(event_id):
+#     event = Event.query.get(event_id)
+#     if not event:
+#         return jsonify({"error": "Event not found"}), 404
+#     db.session.delete(event)
+#     db.session.commit()
+#     return jsonify({"msg": "Event deleted"}), 200
+
+# # RSVP
+
+
+# @api.route('/events/<int:event_id>/rsvp', methods=['POST'])
+# @jwt_required()
+# def rsvp_event(event_id):
+#     user_id = get_jwt_identity()
+#     response = request.json.get('response')
+#     if response not in ["yes", "no", "maybe"]:
+#         return jsonify({"error": "Invalid response"}), 400
+#     event = Event.query.get(event_id)
+#     if not event:
+#         return jsonify({"error": "Event not found"}), 404
+#     rsvp = RSVP.query.filter_by(user_id=user_id, event_id=event_id).first()
+#     if rsvp:
+#         rsvp.response = response
+#     else:
+#         rsvp = RSVP(user_id=user_id, event_id=event_id, response=response)
+#         db.session.add(rsvp)
+#     db.session.commit()
+#     return jsonify(rsvp.serialize()), 200
+
+
+# @api.route('/events/<int:event_id>/rsvp', methods=['GET'])
+# @jwt_required()
+# def get_event_rsvps(event_id):
+#     rsvps = RSVP.query.filter_by(event_id=event_id).all()
+#     return jsonify([rsvp.serialize() for rsvp in rsvps]), 200
+
+# # Favorites
+
+
+# @api.route('/favorites', methods=['POST'])
+# @jwt_required()
+# def add_favorite():
+#     user_id = get_jwt_identity()
+#     event_id = request.json.get('event_id')
+#     if not event_id or not Event.query.get(event_id):
+#         return jsonify({"error": "Event not found"}), 404
+#     if Favorite.query.filter_by(user_id=user_id, event_id=event_id).first():
+#         return jsonify({"msg": "Already favorited"}), 400
+#     favorite = Favorite(user_id=user_id, event_id=event_id)
+#     db.session.add(favorite)
+#     db.session.commit()
+#     return jsonify({"msg": "Event favorited", "favorite": favorite.serialize()}), 201
+
+
+# @api.route('/favorites', methods=['GET'])
+# @jwt_required()
+# def list_favorites():
+#     user_id = get_jwt_identity()
+#     favorites = Favorite.query.filter_by(user_id=user_id).all()
+#     return jsonify([fav.serialize() for fav in favorites]), 200
+
+
+# @api.route('/favorites/<int:event_id>', methods=['DELETE'])
+# @jwt_required()
+# def remove_favorite(event_id):
+#     user_id = get_jwt_identity()
+#     favorite = Favorite.query.filter_by(
+#         user_id=user_id, event_id=event_id).first()
+#     if not favorite:
+#         return jsonify({"error": "Favorite not found"}), 404
+#     db.session.delete(favorite)
+#     db.session.commit()
+#     return jsonify({"msg": "Favorite removed"}), 200
+
+
+#  Updated Events
+
 @api.route('/events', methods=['POST'])
 @jwt_required()
 def create_event():
     data = request.get_json()
     title = data.get('title')
-    description = data.get('description')
+    description = data.get('description', '')
     location = data.get('location')
     date = data.get('date')
     time_ = data.get('time')
+    image = data.get('image', 'https://via.placeholder.com/400x200?text=Event+Image')
+
     if not title or not location or not date or not time_:
         return jsonify({"error": "Missing fields"}), 400
+
     event = Event(title=title, description=description,
-                  location=location, date=date, time=time_)
+                  location=location, date=date, time=time_, image=image)
     db.session.add(event)
     db.session.commit()
     return jsonify(event.serialize()), 201
-
 
 @api.route('/events', methods=['GET'])
 def list_events():
     events = Event.query.all()
     return jsonify([event.serialize() for event in events]), 200
-
 
 @api.route('/events/<int:event_id>', methods=['GET'])
 def get_event(event_id):
@@ -224,7 +353,6 @@ def get_event(event_id):
     if not event:
         return jsonify({"error": "Event not found"}), 404
     return jsonify(event.serialize()), 200
-
 
 @api.route('/events/<int:event_id>', methods=['PUT'])
 @jwt_required()
@@ -238,9 +366,9 @@ def update_event(event_id):
     event.location = data.get('location', event.location)
     event.date = data.get('date', event.date)
     event.time = data.get('time', event.time)
+    event.image = data.get('image', event.image)
     db.session.commit()
     return jsonify(event.serialize()), 200
-
 
 @api.route('/events/<int:event_id>', methods=['DELETE'])
 @jwt_required()
@@ -252,37 +380,49 @@ def delete_event(event_id):
     db.session.commit()
     return jsonify({"msg": "Event deleted"}), 200
 
-# RSVP
-
+# updates RSVPs
 
 @api.route('/events/<int:event_id>/rsvp', methods=['POST'])
 @jwt_required()
 def rsvp_event(event_id):
     user_id = get_jwt_identity()
-    response = request.json.get('response')
-    if response not in ["yes", "no", "maybe"]:
+    response = request.json.get('rsvp')
+    if response not in ["yes", "maybe", "no"]:
         return jsonify({"error": "Invalid response"}), 400
+
     event = Event.query.get(event_id)
     if not event:
         return jsonify({"error": "Event not found"}), 404
+
     rsvp = RSVP.query.filter_by(user_id=user_id, event_id=event_id).first()
     if rsvp:
         rsvp.response = response
     else:
         rsvp = RSVP(user_id=user_id, event_id=event_id, response=response)
         db.session.add(rsvp)
+
     db.session.commit()
     return jsonify(rsvp.serialize()), 200
 
-
-@api.route('/events/<int:event_id>/rsvp', methods=['GET'])
+@api.route('/rsvps', methods=['GET'])
 @jwt_required()
-def get_event_rsvps(event_id):
-    rsvps = RSVP.query.filter_by(event_id=event_id).all()
-    return jsonify([rsvp.serialize() for rsvp in rsvps]), 200
+def list_user_rsvps():
+    user_id = get_jwt_identity()
+    rsvps = RSVP.query.filter_by(user_id=user_id).all()
+    return jsonify([r.serialize() for r in rsvps]), 200
 
-# Favorites
+@api.route('/rsvps/<int:event_id>', methods=['DELETE'])
+@jwt_required()
+def delete_rsvp(event_id):
+    user_id = get_jwt_identity()
+    rsvp = RSVP.query.filter_by(user_id=user_id, event_id=event_id).first()
+    if not rsvp:
+        return jsonify({"error": "RSVP not found"}), 404
+    db.session.delete(rsvp)
+    db.session.commit()
+    return jsonify({"msg": "RSVP deleted"}), 200
 
+# updated Favorites
 
 @api.route('/favorites', methods=['POST'])
 @jwt_required()
@@ -291,13 +431,14 @@ def add_favorite():
     event_id = request.json.get('event_id')
     if not event_id or not Event.query.get(event_id):
         return jsonify({"error": "Event not found"}), 404
+
     if Favorite.query.filter_by(user_id=user_id, event_id=event_id).first():
         return jsonify({"msg": "Already favorited"}), 400
+
     favorite = Favorite(user_id=user_id, event_id=event_id)
     db.session.add(favorite)
     db.session.commit()
     return jsonify({"msg": "Event favorited", "favorite": favorite.serialize()}), 201
-
 
 @api.route('/favorites', methods=['GET'])
 @jwt_required()
@@ -306,18 +447,17 @@ def list_favorites():
     favorites = Favorite.query.filter_by(user_id=user_id).all()
     return jsonify([fav.serialize() for fav in favorites]), 200
 
-
 @api.route('/favorites/<int:event_id>', methods=['DELETE'])
 @jwt_required()
 def remove_favorite(event_id):
     user_id = get_jwt_identity()
-    favorite = Favorite.query.filter_by(
-        user_id=user_id, event_id=event_id).first()
+    favorite = Favorite.query.filter_by(user_id=user_id, event_id=event_id).first()
     if not favorite:
         return jsonify({"error": "Favorite not found"}), 404
     db.session.delete(favorite)
     db.session.commit()
     return jsonify({"msg": "Favorite removed"}), 200
+
 
 # Favorite Members
 
