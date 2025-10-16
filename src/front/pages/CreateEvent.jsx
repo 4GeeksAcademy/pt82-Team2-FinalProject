@@ -111,7 +111,7 @@ function CreateEvent() {
               description: eventDescription,
               photo: base64Photo,
               createdBy: {
-                id: currentUser.id || currentUser.email, 
+                id: currentUser.id || currentUser.email,
                 firstName: currentUser.firstName,
                 lastName: currentUser.lastName,
                 email: currentUser.email,
@@ -222,6 +222,9 @@ function CreateEvent() {
             style={{ minHeight: "80px" }}
           />
           <div className="photo-upload-wrapper">
+            <label className="photo-upload-title" htmlFor="file-upload">
+              Add Banner Photo:
+            </label>
             {eventPhoto ? (
               <div className="photo-preview-container">
                 <img
