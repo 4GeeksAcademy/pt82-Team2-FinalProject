@@ -71,6 +71,24 @@ function Discover() {
 
   return (
     <div className="discover-container">
+            <nav className="dashboard-navbar">
+                <ul>
+                    <li><Link to="/">Home</Link></li>
+                    <li><Link to="/discover">Discover</Link></li>
+                    <li className="coming-soon">
+                        <span>My Events</span>
+                        <span className="coming-soon-tooltip">Coming Soon!</span>
+                    </li>
+                    <li className="coming-soon">
+                        <span>RSVP</span>
+                        <span className="coming-soon-tooltip">Coming Soon!</span>
+                    </li>
+                    <li className="coming-soon">
+                        <span>Favorites</span>
+                        <span className="coming-soon-tooltip">Coming Soon!</span>
+                    </li>
+                </ul>
+            </nav>
       <div className="discover-header">
         <h1>Discover Events</h1>
         <div className="search-container">

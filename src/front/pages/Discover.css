@@ -264,3 +264,38 @@ body,
     font-size: 2rem;
   }
 }
+.dashboard-navbar {
+  background: rgba(46, 90, 136, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 45, 117, 0.3);
+  margin-bottom: 2rem;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.dashboard-navbar ul {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-navbar li {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.dashboard-navbar a {
+  color: #ff7c2d;
+  text-decoration: none;
+  padding-bottom: 4px;
+}
+
+.dashboard-navbar a:hover,
+.dashboard-navbar a:focus,
+.dashboard-navbar a.active {
+  border-bottom-color: #ff2d75;
+  color: #ff2d75;
+}
