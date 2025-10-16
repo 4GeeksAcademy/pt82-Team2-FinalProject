@@ -33,19 +33,25 @@ export default function EventDetails() {
     if (!currentUser || !event) return;
 
     const userId = currentUser.email || currentUser.id;
-    const updatedAttendees = [...attendees];
-    const idx = updatedAttendees.findIndex((a) => a.id === userId);
+    let updatedAttendees;
 
-    if (idx >= 0) {
-      updatedAttendees[idx] = { ...updatedAttendees[idx], response };
+    if (response === "no") {
+      updatedAttendees = attendees.filter((a) => a.id !== userId);
     } else {
-      updatedAttendees.push({
-        id: userId,
-        firstName: currentUser.firstName,
-        lastName: currentUser.lastName,
-        email: currentUser.email,
-        response,
-      });
+      updatedAttendees = [...attendees];
+      const idx = updatedAttendees.findIndex((a) => a.id === userId);
+
+      if (idx >= 0) {
+        updatedAttendees[idx] = { ...updatedAttendees[idx], response };
+      } else {
+        updatedAttendees.push({
+          id: userId,
+          firstName: currentUser.firstName,
+          lastName: currentUser.lastName,
+          email: currentUser.email,
+          response,
+        });
+      }
     }
 
     setAttendees(updatedAttendees);
@@ -87,6 +93,16 @@ export default function EventDetails() {
       setEvent(null);
     }
   }, [eventId, currentUser]);
+
+  const handleDelete = () => {
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
+
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+    const updatedEvents = events.filter(ev => ev.id !== eventId);
+    localStorage.setItem("events", JSON.stringify(updatedEvents));
+    setEvent(null);
+    window.location.href = "/discover";
+  };
 
   if (!event) {
     return (
@@ -148,6 +164,13 @@ export default function EventDetails() {
             ))}
           </ul>
         </section>
+        <button
+          className="event-details-delete-btn"
+          title="Delete Event"
+          onClick={handleDelete}
+        >
+          <i className="fa-solid fa-trash" />
+        </button>
       </div>
     </div>
   );

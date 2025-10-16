@@ -13,13 +13,13 @@ function Discover() {
     if (userData) {
       try {
         setCurrentUser(JSON.parse(userData));
-      } catch {}
+      } catch { }
     }
     const storedEvents = localStorage.getItem("events");
     if (storedEvents) {
       try {
         setEvents(JSON.parse(storedEvents));
-      } catch {}
+      } catch { }
     }
     setLoading(false);
   }, []);
@@ -53,6 +53,14 @@ function Discover() {
       return event;
     });
 
+    setEvents(updatedEvents);
+    localStorage.setItem("events", JSON.stringify(updatedEvents));
+  };
+
+  const handleDelete = (eventId) => {
+    if (!window.confirm("Are you sure you want to delete this event?"))
+      return;
+    const updatedEvents = events.filter(ev => ev.id !== eventId);
     setEvents(updatedEvents);
     localStorage.setItem("events", JSON.stringify(updatedEvents));
   };
@@ -113,14 +121,38 @@ function Discover() {
               </div>
               <div className="event-actions">
                 <div className="rsvp-buttons">
-                  <button className="rsvp-btn rsvp-yes" onClick={() => handleRSVP(event.id, "yes")}>Yes</button>
-                  <button className="rsvp-btn rsvp-maybe" onClick={() => handleRSVP(event.id, "maybe")}>Maybe</button>
-                  <button className="rsvp-btn rsvp-no" onClick={() => handleRSVP(event.id, "no")}>No</button>
+                  <button
+                    className={`rsvp-btn rsvp-yes${event.attendees?.find(a => a.id === currentUser?.email && a.response === "yes") ? " selected" : ""}`}
+                    onClick={() => handleRSVP(event.id, "yes")}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className={`rsvp-btn rsvp-maybe${event.attendees?.find(a => a.id === currentUser?.email && a.response === "maybe") ? " selected" : ""}`}
+                    onClick={() => handleRSVP(event.id, "maybe")}
+                  >
+                    Maybe
+                  </button>
+                  <button
+                    className={`rsvp-btn rsvp-no${event.attendees?.find(a => a.id === currentUser?.email && a.response === "no") ? " selected" : ""}`}
+                    onClick={() => handleRSVP(event.id, "no")}
+                  >
+                    No
+                  </button>
                 </div>
-                <Link to={`/event/${event.id}`} className="view-details-btn">
-                  View Details
-                </Link>
+                <div className="actions-row">
+                  <Link to={`/event/${event.id}`} className="view-details-btn">
+                    View Details
+                  </Link>
+                </div>
               </div>
+              <button
+                className="event-delete-btn"
+                title="Delete Event"
+                onClick={() => handleDelete(event.id)}
+              >
+                <i className="fa-solid fa-trash" />
+              </button>
             </div>
           ))
         ) : (

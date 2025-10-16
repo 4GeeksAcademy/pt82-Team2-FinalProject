@@ -53,6 +53,12 @@ export const Navbar = () => {
 		<nav className="navbar">
 			<Link to="/" className="logo">E-Venture</Link>
 			<div className="nav-actions">
+				<Link to="/dashboard" className="events-btn">
+					Dashboard
+				</Link>
+				<Link to="/discover" className="events-btn">
+					Discover
+				</Link>
 				{store.isLoggedIn ? (
 					<>
 						<Link to="/createevent" className="signup" style={{ fontWeight: 700, padding: "0.3rem 0.8rem" }}>

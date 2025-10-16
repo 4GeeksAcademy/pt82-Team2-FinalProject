@@ -138,6 +138,28 @@
   font-size: 1.2rem;
 }
 
+.events-btn {
+  color: white;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  transition: color 0.2s ease;
+  margin-right: 0.5rem;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.events-btn:hover {
+  color: #ff7c2d;
+  background: transparent;
+  border: none;
+}
+
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;

@@ -65,6 +65,8 @@ body,
   box-shadow: 0 0 10px #ff2d7580;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; 
+  padding-bottom: 2.5rem; 
 }
 
 .event-card:hover {
@@ -118,14 +120,14 @@ body,
 }
 
 .event-description {
-  color: #ddd;
+  color: rgb(233, 233, 233) !important;
   line-height: 1.5;
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
 
 .event-creator {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #aaa;
   margin-bottom: 0.5rem;
 }
@@ -151,43 +153,48 @@ body,
 
 .rsvp-btn {
   flex: 1;
-  padding: 0.5rem;
-  border: none;
+  padding: 0.75rem 1rem !important; 
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 1.5px solid white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: white !important;
+  white-space: nowrap;
 }
 
 .rsvp-yes {
-  background-color: #28a745;
-  color: white;
+  background-color: #ff5e79;
+  border-color: #fff;
 }
 
 .rsvp-yes:hover {
-  background-color: #218838;
-  box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+  background-color: #ff405c;
+  box-shadow: 0 0 12px rgba(255, 94, 121, 0.6);
 }
 
 .rsvp-maybe {
-  background-color: #ffc107;
-  color: #212529;
+  background-color: #ff9f43;
+  color: #23234a;
+  border-color: #fff;
 }
 
 .rsvp-maybe:hover {
-  background-color: #e0a800;
-  box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+  background-color: #ff7a11;
+  box-shadow: 0 0 12px rgba(255, 159, 67, 0.6);
 }
 
 .rsvp-no {
-  background-color: #dc3545;
-  color: white;
+  background-color: #252550;
+  color: #ff9f43;
+  border-color: #fff;
 }
 
 .rsvp-no:hover {
-  background-color: #c82333;
-  box-shadow: 0 0 8px rgba(220, 53, 69, 0.4);
+  background-color: #23234a;
+  box-shadow: 0 0 12px rgba(26, 26, 64, 0.6);
 }
 
 .view-details-btn {
@@ -217,6 +224,30 @@ body,
   background: rgba(24, 24, 40, 0.7);
   border-radius: 12px;
   margin: 2rem 0;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.event-delete-btn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: #ffeaf1;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 2;
+}
+
+.event-delete-btn:hover {
+  color: #dc3545;
 }
 
 @media (max-width: 768px) {

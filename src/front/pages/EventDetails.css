@@ -36,6 +36,7 @@ body,
   box-sizing: border-box;
   overflow-wrap: break-word;
   word-wrap: break-word;
+  position: relative;
 }
 
 .event-details-info p {
@@ -145,6 +146,39 @@ body,
   width: 100%;
 }
 
+.event-details-description,
+.event-details-description p {
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+}
+
 .event-details-description p i {
   flex-shrink: 0;
+}
+
+.event-details-delete-btn {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  background: linear-gradient(90deg, #ff2d75, #ff7c2d);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+  z-index: 2;
+}
+
+.event-details-delete-btn:hover {
+  background: linear-gradient(90deg, #b30000, #ff2d75);
+  box-shadow: 0 0 12px #ff2d75cc;
+  color: #fff;
 }
