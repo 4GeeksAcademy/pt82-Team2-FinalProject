@@ -191,11 +191,12 @@ function Dashboard() {
                 </div>
                 <div className="dashboard-card" id="my-events">
                     <h2>My Events</h2>
-                    <div className="dashboard-coming-soon">Coming Soon!</div>
+                    <Link to="/events" className="dashboard-button">View Events</Link>
                 </div>
+
                 <div className="dashboard-card">
                     <h2>Favorites</h2>
-                    <div className="dashboard-coming-soon">Coming Soon!</div>
+                    <Link to="/favorites" className="dashboard-button">View Favorites</Link>
                 </div>
             </div>
         </div>

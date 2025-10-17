@@ -20,6 +20,7 @@ CORS(app, origins=[
     "https://friendly-computing-machine-pxw4p4r46rq2r7gp-3000.app.github.dev",
     "https://upgraded-system-7vgj4vjj6j52rx7j-3000.app.github.dev",
     "https://jubilant-telegram-9759j7q57vg92pgg4-3000.app.github.dev",
+    
 ], supports_credentials=True)
 app.url_map.strict_slashes = False
 
