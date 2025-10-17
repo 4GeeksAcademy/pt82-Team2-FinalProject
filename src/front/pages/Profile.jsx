@@ -171,7 +171,7 @@ function Profile() {
                             <button onClick={handleEditToggle} className="edit-button">Edit Name</button>
                         )}
                         <button onClick={handleLogout} className="logout-button">Logout</button>
-                        <a href="/reset-password" className="reset-password-link">Reset Password</a>
+                        <a href="/resetpassword" className="reset-password-link">Reset Password</a>
                     </div>
                 </div>
             </div>
